@@ -1,126 +1,84 @@
 import random
 import sys
+import argparse
+import json
 
-def keygen():
+def keygen():#make and write key in json file
     seq = list(range(256))
     random.shuffle(seq)
-    return seq 
+    with open("key.json", "w") as write_file:
+        json.dump(seq, write_file)
 
-def encrypt(sentence, key):
-    return [chr(key[ord(ch)]) for ch in sentence]
+def read_piece(file, piece_size = 1024):
+    while True:
+        data = file.read(piece_size)
+        if not data:
+            break
+        yield data
 
-def decrypt(sentence, key):
+def encrypt(args):
+    print('encryption...')
+    with open("key.json") as key_file:
+        data = key_file.read()
+        key = json.loads(data)
+    
+    sentence = ''
+    with open(args.file_read) as read_file, args.cipher_write as write_file:
+        for piece in read_piece(read_file):
+            for el in piece:
+                sentence += chr(key[ord(el)])
+            write_file.write(sentence)
+            sentence = ''
+
+
+def decrypt(args):
+    print('decryption...')
+
     keys = []
     seq = list(range(256))
+
+    with open("key.json") as key_file:
+        data = key_file.read()
+        key = json.loads(data)
+    
     for el in key:
         keys.append(chr(el))
+
+    sentence = ''
+    with open(args.cipher_read) as read_file, args.file_write as write_file:
+        for piece in read_piece(read_file):
+            for el in piece:
+                sentence += chr(seq[keys.index(el)])
+            write_file.write(sentence)
+            sentence = ''
+
     return [chr(seq[keys.index(ch)]) for ch in sentence]
     
-def perform_ed(word, mode, file_name):
-#mode: 0 - encryption, 1 - decryption
 
-    file = open('keys.txt', 'r')
+def parse_args():
+    parser = argparse.ArgumentParser(description = 'cipher modes')
+    parser.add_argument("-k", "--key", action = 'store_true', help = 'make key and rewrite/write in key.json')
+    subparsers = parser.add_subparsers()
 
-    str_key = file.read()
+    parser_enc = subparsers.add_parser('enc', help='perform encryption')
+    parser_enc.add_argument('file_read',  help = 'read text from the file')#,type = argparse.FileType('r'), help = 'read text from the file')
+    parser_enc.add_argument('cipher_write', type = argparse.FileType('w'), help = 'write cipher in the file')
+    parser_enc.set_defaults(func = encrypt)
 
-    s =''
-    key = []
-    for el in str_key:
-        if el == ',':
-            key.append(int(s))
-            s =''
-            continue
-        s += el
+    parser_dec = subparsers.add_parser('dec', help = 'perform decryption')
+    parser_dec.add_argument('cipher_read', help = 'read cipher from the file')
+    parser_dec.add_argument('file_write', type = argparse.FileType('w'), help = 'write text in the file')
+    parser_dec.set_defaults(func = decrypt)
 
-    file.close()
+    return parser.parse_args()
 
-    if mode == 0:
+def main():
+    args = parse_args()
+    if args.key:
+        print('make key...')
+        keygen()
+    args.func(args)
 
-        sentence2 = encrypt(word, key)
-
-        if file_name == None:
-            print('Sentence: ',word)
-            print(sentence2)
-            print('Cipher: ',''.join(sentence2))
-        else:
-            file = open(file_name, 'w')
-            file.write(''.join(sentence2))
-            file.close()
-
-    elif mode == 1:
-
-        sentence2 = decrypt(word, key)
-
-        if file_name == None:
-            print('Cipher: ', word)
-            print(sentence2)
-            print('Sentence: ', ''.join(sentence2))
-        else:
-            file = open(file_name, 'w')
-            file.write(''.join(sentence2))
-            file.close()
-
-    
-class EncryptError(LookupError):
-    def __init__(self, *args, **kwargs):
-        super().__init__(self, *args, **kwargs)
 
 if __name__ == "__main__":
-
-    if '-h' in sys.argv:
-        print('''\tINPUT__
-        >>> -ok: to generate a NEW key and write it in 'keys.txt'
-        >>> -ec <some sentence>: to perform encryption(need keys.txt)
-        >>> -dec <some cipher>: to perform decryption(need keys.txt)
-        >>> -out: using to OUTPUT sentence in 'out.txt'
-        >>> -in: using to INPUT sentence from 'out.txt'(need out.txt)
-        EXAMPLE__
-        >>>python3 task2.py -ok -ec -out -in
-        >>>python3 task2.py -dec -out -in''')
-
-    if '-ok' in sys.argv:#make key and write it in file
-        key = keygen()
-        file = open('keys.txt', 'w')
-        for el in key:
-            file.write(f'{el},')
-        file.close()
- 
-    file_name = None
-
-    if '-out' in sys.argv:
-        file_name = 'out.txt'
-
-    if '-ec' in sys.argv and '-dec' in sys.argv:
-        raise EncryptError('choose encryption or decryption mode')
-
-    elif '-ec' in sys.argv:#encrypt mode (need key)
-
-            if '-in' in sys.argv:
-                file = open('out.txt', 'r')
-                sentence1 = file.read()
-                file.close()
-            else:
-                sentence = []
-                for el in sys.argv[1:]:
-                    if el == '-ec' or el == '-h' or el == '-ok' or el == '-out':
-                        continue
-                    sentence.append(el)
-                sentence1 = ' '.join(sentence)
-
-            perform_ed(sentence1, 0, file_name)
-
-    elif '-dec' in sys.argv:
-
-            if '-in' in sys.argv:
-                file = open('out.txt', 'r')
-                sentence1 = file.read()
-                file.close()
-            else:
-                cipher = []
-                for el in sys.argv[1:]:
-                    if el == '-dec' or el == '-h' or el == '-ok' or el == '-out':
-                        continue
-                    cipher.append(el)
-                sentence1 = ' '.join(cipher)
-
-            perform_ed(sentence1, 1, file_name)
+    main()

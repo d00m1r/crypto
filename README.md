@@ -1,22 +1,24 @@
 # crypto
 cryptographic systems models on python
+Task 1:
+======================================
+The program counts characters in all TXT files of the current directory
 
-TASK 2:
+**python3 task1.py**
 
-INPUT__
+Dictionary **alphabet** case insensitive number of letters
+DIctionary **alphabetBIG** case number of uppercase letters
 
-	>>> -ok: to generate a NEW key and write it in 'keys.txt'
-	
-	>>> -ec <some sentence>: to perform encryption(need keys.txt)
-	
-	>>> -dec <some cipher>: to perform decryption(need keys.txt)
-	
-	>>> -out: using to OUTPUT sentence in 'out.txt'
-	
-	>>> -in: using to INPUT sentence from 'out.txt'(need out.txt)
-	
-  EXAMPLE__
-  
-	>>>python3 task2.py -ok -ec -out -in
-	
-	>>>python3 task2.py -dec -out -in
+
+Task 2:
+======================================
+The program encrypt\decrypt the text supplied to the input and writes it to another file
+It generate a 256 character key
+ 
+use argparse module:
+--------------------
+**python3 task2.py -h/--help** to get information
+
+example:
+--------
+***python3 task2.py -k enc text.txt cipher.txt***
