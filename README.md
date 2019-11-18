@@ -1,5 +1,5 @@
 # crypto
-cryptographic systems models on python
+Cryptographic systems models on python
 
 Task 1:
 ======================================
@@ -18,10 +18,10 @@ The program encrypt\decrypt the text supplied to the input and writes it to anot
 
 It generate a 256 character key
  
-use argparse module:
+Use argparse module:
 --------------------
 **python3 task2.py -h/--help** to get information
 
-example:
+Example:
 --------
 ***python3 task2.py -k enc text.txt cipher.txt***
