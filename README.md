@@ -14,6 +14,7 @@ Dictionary **alphabetBIG** case number of uppercase letters
 Task 2:
 ======================================
 The program encrypt\decrypt the text supplied to the input and writes it to another file
+
 It generate a 256 character key
  
 use argparse module:
