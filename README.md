@@ -7,7 +7,8 @@ The program counts characters in all TXT files of the current directory
 **python3 task1.py**
 
 Dictionary **alphabet** case insensitive number of letters
-DIctionary **alphabetBIG** case number of uppercase letters
+
+Dictionary **alphabetBIG** case number of uppercase letters
 
 
 Task 2:
