@@ -2,6 +2,7 @@ import random
 import sys
 import argparse
 import json
+import os
 
 def keygen():
     '''make and write key in json file'''
@@ -90,7 +91,33 @@ def freq(args):
     
 def hack(args):
     '''generate approximate keys for cipher'''
-    pass
+    dic_cipher = let_count_freq(args.cipher_read)
+    cipher = list(dic_cipher.items())
+    cipher.sort(key=lambda i: i[1], reverse = True)
+
+    for filename in os.listdir(os.getcwd()):#read all files in current directory
+        
+        if filename.startswith ('freq') and filename.endswith('.json'):#read only freq.json files
+            
+            with open(filename,'r') as file:
+
+                data = file.read()#read str
+                freq = json.loads(data)#deserialized in list
+
+                approximate_key = []
+                approximate_dic = {}
+                for i in range(0,256):
+                    approximate_dic[freq[i][0]] = cipher[i][0]
+                
+                list_keys = list(approximate_dic.keys())
+                list_keys.sort()
+
+                for i in list_keys:
+                    approximate_key.append(approximate_dic[i])
+
+                with open("approximate_keys.json", "a") as write_file:
+                    json.dump(approximate_key, write_file)
+                    write_file.write('********************\n')
 
 def parse_args():
     parser = argparse.ArgumentParser(description = 'hack.cipher')
