@@ -33,6 +33,8 @@ Hack mode used, when you don't have a key.json file
 
 At first, generate 3 approximate frequency for alphabet,  based on 3 input text files
 
+Three books were taken to calculate the frequency of characters: Fyodor Dostoyevsky "The Idiot", 	Aleksandr Sergeyevich Pushkin "Eugene Onegin", Johann Wolfgang Von Goethe "Faust"
+
 **python3 task2.py freq text1.txt text2.txt text3.txt**
 
 The following json files have been added to your directory: freq1.json, freq2.json, freq3.json
