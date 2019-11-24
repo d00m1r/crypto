@@ -41,7 +41,7 @@ The following json files have been added to your directory: freq1.json, freq2.js
 
 They contain a dictionary with the frequency of each character from the texts
 
-Next, you need to generate 3 aproximate keys, using 3 freq.json files'
+Next, you need to generate 3 aproximate keys, using 3 freq.json files
 
 **python3 task2.py hack cipher.txt**
 
