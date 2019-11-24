@@ -54,11 +54,16 @@ def decrypt(args):
 
     return [chr(seq[keys.index(ch)]) for ch in sentence]
     
+def hack():
+    pass
 
 def parse_args():
     parser = argparse.ArgumentParser(description = 'cipher modes')
     parser.add_argument("-k", "--key", action = 'store_true', help = 'make key and rewrite/write in key.json')
     subparsers = parser.add_subparsers()
+
+    parser_hack = subparsers.add_parser('hack', help = 'perform hack without a key')
+    parser_hack.set_defaults(func = hack)
 
     parser_enc = subparsers.add_parser('enc', help='perform encryption')
     parser_enc.add_argument('file_read',  help = 'read text from the file')#,type = argparse.FileType('r'), help = 'read text from the file')
@@ -68,12 +73,12 @@ def parse_args():
     parser_dec = subparsers.add_parser('dec', help = 'perform decryption')
     parser_dec.add_argument('cipher_read', help = 'read cipher from the file')
     parser_dec.add_argument('file_write', type = argparse.FileType('w'), help = 'write text in the file')
-    parser_dec.set_defaults(func = decrypt)
+    parser_dec.set_defaults(func = decrypt)#allows some additional attributes that are determined without any inspection of the command line to be added
 
     return parser.parse_args()
 
 def main():
-    args = parse_args()
+    args = parse_args()#return <class argparse.Namespace>
     if args.key:
         print('make key...')
         keygen()
