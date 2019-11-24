@@ -3,7 +3,8 @@ import sys
 import argparse
 import json
 
-def keygen():#make and write key in json file
+def keygen():
+    '''make and write key in json file'''
     seq = list(range(256))
     random.shuffle(seq)
     with open("key.json", "w") as write_file:
@@ -26,10 +27,10 @@ def encrypt(args):
     with open(args.file_read) as read_file, args.cipher_write as write_file:
         for piece in read_piece(read_file):
             for el in piece:
+                print(el)
                 sentence += chr(key[ord(el)])
             write_file.write(sentence)
             sentence = ''
-
 
 def decrypt(args):
     print('decryption...')
@@ -54,15 +55,56 @@ def decrypt(args):
 
     return [chr(seq[keys.index(ch)]) for ch in sentence]
     
-def hack():
+def let_count_freq(filename):
+    '''returns a dictionary with frequencies for each character'''
+    alphabet = {a: 0 for a in range(0, 256 ,1 )}
+    count = 0
+    with open(filename, 'rb') as file:
+        for piece in read_piece(file): # ~ for line in open('BIG_FILE.TXT'):
+            for el in piece:
+                alphabet[el] += 1
+                count += 1
+
+    for el in alphabet:
+        alphabet[el] = alphabet[el]/count #частота появления каждого символа
+    return alphabet
+
+def freq(args):
+    '''write frequencies in json files'''
+    dic1 = let_count_freq(args.file_read1)
+    dic2 = let_count_freq(args.file_read2)
+    dic3 = let_count_freq(args.file_read3)
+
+    freq1, freq2, freq3 = list(dic1.items()), list(dic2.items()), list(dic3.items())
+
+    freq1.sort(key=lambda i: i[1], reverse = True)
+    freq2.sort(key=lambda i: i[1], reverse = True)
+    freq3.sort(key=lambda i: i[1], reverse = True)
+
+    with open('freq1.json','w') as file:
+        json.dump(freq1, file)
+    with open('freq2.json','w') as file:
+        json.dump(freq2, file)
+    with open('freq3.json','w') as file:
+        json.dump(freq3, file)
+    
+def hack(args):
+    '''generate approximate keys for cipher'''
     pass
 
 def parse_args():
-    parser = argparse.ArgumentParser(description = 'cipher modes')
+    parser = argparse.ArgumentParser(description = 'hack.cipher')
     parser.add_argument("-k", "--key", action = 'store_true', help = 'make key and rewrite/write in key.json')
     subparsers = parser.add_subparsers()
 
-    parser_hack = subparsers.add_parser('hack', help = 'perform hack without a key')
+    parser_kh = subparsers.add_parser('freq', help = 'generate 3 approximate frequency for alphabet,  based on 3 input text files')
+    parser_kh.add_argument('file_read1', help = 'read text from the file')
+    parser_kh.add_argument('file_read2', help = 'read text from the file')
+    parser_kh.add_argument('file_read3', help = 'read text from the file')
+    parser_kh.set_defaults(func = freq)
+
+    parser_hack = subparsers.add_parser('hack', help = 'generate 3 aproximate keys, using 3 frequency in freq.json')
+    parser_hack.add_argument('cipher_read', help = 'read cipher from the file')
     parser_hack.set_defaults(func = hack)
 
     parser_enc = subparsers.add_parser('enc', help='perform encryption')
@@ -83,7 +125,6 @@ def main():
         print('make key...')
         keygen()
     args.func(args)
-
 
 if __name__ == "__main__":
     main()
