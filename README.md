@@ -31,19 +31,13 @@ Hack mode
 
 Hack mode used, when you don't have a key.json file
 
-At first, generate 3 approximate frequency for alphabet,  based on 3 input text files
+There is a phased reading in pieces (by default, the size of the piece is 1024 bytes) of all books from the directory and the creation of a frequency model, after a certain number of steps (by default 100 steps)
 
 Three books were taken to calculate the frequency of characters: Fyodor Dostoyevsky "The Idiot", 	Aleksandr Sergeyevich Pushkin "Eugene Onegin", Johann Wolfgang Von Goethe "Faust"
 
-**python3 task2.py freq text1.txt text2.txt text3.txt**
-
-The following json files have been added to your directory: freq1.json, freq2.json, freq3.json
-
-They contain a dictionary with the frequency of each character from the texts
-
-Next, you need to generate 3 aproximate keys, using 3 freq.json files
-
 **python3 task2.py hack cipher.txt**
 
-Approximate_keys.json appears in the directory. It contains all aproximate keys
+*approximate_keys.json* appears in the directory. It contains all aproximate keys (10 by def)
+
+Symbols that have a frequency of 0 (not met in the cipher) in the key get a value of 999
 
