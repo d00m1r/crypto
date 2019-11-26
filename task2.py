@@ -28,7 +28,6 @@ def encrypt(args):
     with open(args.file_read) as read_file, args.cipher_write as write_file:
         for piece in read_piece(read_file):
             for el in piece:
-                print(el)
                 sentence += chr(key[ord(el)])
             write_file.write(sentence)
             sentence = ''
@@ -67,70 +66,86 @@ def let_count_freq(filename):
                 count += 1
 
     for el in alphabet:
-        alphabet[el] = alphabet[el]/count #частота появления каждого символа
+        alphabet[el] = alphabet[el]/count #frequency for each symbol
     return alphabet
 
-def freq(args):
-    '''write frequencies in json files'''
-    dic1 = let_count_freq(args.file_read1)
-    dic2 = let_count_freq(args.file_read2)
-    dic3 = let_count_freq(args.file_read3)
+def freq_gen(args, step = 1000):
+    '''calculate frequencies step by step'''
 
-    freq1, freq2, freq3 = list(dic1.items()), list(dic2.items()), list(dic3.items())
+    alphabet = {a: 0 for a in range(0, 256 ,1 )}
+    count, n = 0, 0
 
-    freq1.sort(key=lambda i: i[1], reverse = True)
-    freq2.sort(key=lambda i: i[1], reverse = True)
-    freq3.sort(key=lambda i: i[1], reverse = True)
+    for filename in os.listdir(os.getcwd()):#read all files in current directory
+        if  filename.startswith('book') and filename.endswith('.txt'):#read all books.txt in current directory
+            with open(filename, 'rb') as file:
 
-    with open('freq1.json','w') as file:
-        json.dump(freq1, file)
-    with open('freq2.json','w') as file:
-        json.dump(freq2, file)
-    with open('freq3.json','w') as file:
-        json.dump(freq3, file)
-    
+                t = 0
+                for piece in read_piece(file, piece_size = 1024): #read 1024 bytes by def
+
+                    t += 1
+                    if n == step:
+
+                        for el in alphabet:
+                            alphabet[el] = alphabet[el]/count
+
+                        n = 0
+                        print('\t**build frequency model after reading {} bytes of {}**'.format(1024*t, filename))
+                        yield alphabet#every (step*piece_size) byte return a new frequency model
+
+                    for el in piece:
+                        alphabet[el] += 1
+                        count += 1
+
+                    n += 1
+                    
+
+
 def hack(args):
     '''generate approximate keys for cipher'''
+
     dic_cipher = let_count_freq(args.cipher_read)
     cipher = list(dic_cipher.items())
     cipher.sort(key=lambda i: i[1], reverse = True)
 
-    for filename in os.listdir(os.getcwd()):#read all files in current directory
+    with open("approximate_keys.json", "w") as write_file:
+
+        Init = freq_gen(args, step = 100)#step = 100 by def
         
-        if filename.startswith ('freq') and filename.endswith('.json'):#read only freq.json files
-            
-            with open(filename,'r') as file:
+        for key in range(1,11):#return 10 approximate keys
 
-                data = file.read()#read str
-                freq = json.loads(data)#deserialized in list
+            dic = next(Init)
+            freq = list(dic.items())
+            freq.sort(key=lambda i: i[1], reverse = True)#sort list of frequencies by value
 
-                approximate_key = []
-                approximate_dic = {}
-                for i in range(0,256):
-                    approximate_dic[freq[i][0]] = cipher[i][0]
+            approximate_key = []
+            approximate_dic = {}
+
+            for i in range(0,256):
+                if cipher[i][1] == 0:
+                    approximate_dic[freq[i][0]] = '_'#if the symbol did not occur in cipher, skip it
+                    continue
+                approximate_dic[freq[i][0]] = cipher[i][0]#pick up the key
                 
-                list_keys = list(approximate_dic.keys())
-                list_keys.sort()
+            list_keys = list(approximate_dic.keys())
+            list_keys.sort()
 
-                for i in list_keys:
-                    approximate_key.append(approximate_dic[i])
+            for i in list_keys:
+                approximate_key.append(approximate_dic[i])#fill the array with only the value for the key
 
-                with open("approximate_keys.json", "a") as write_file:
-                    json.dump(approximate_key, write_file)
-                    write_file.write('********************\n')
+            
+            write_file.write('key_{} \n'.format(key))
+
+            json.dump(approximate_key, write_file)
+
+            write_file.write('\n')
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description = 'hack.cipher')
     parser.add_argument("-k", "--key", action = 'store_true', help = 'make key and rewrite/write in key.json')
     subparsers = parser.add_subparsers()
 
-    parser_kh = subparsers.add_parser('freq', help = 'generate 3 approximate frequency for alphabet,  based on 3 input text files')
-    parser_kh.add_argument('file_read1', help = 'read text from the file')
-    parser_kh.add_argument('file_read2', help = 'read text from the file')
-    parser_kh.add_argument('file_read3', help = 'read text from the file')
-    parser_kh.set_defaults(func = freq)
-
-    parser_hack = subparsers.add_parser('hack', help = 'generate 3 aproximate keys, using 3 frequency in freq.json')
+    parser_hack = subparsers.add_parser('hack', help = 'generate custom(10 by def) aproximate keys, using frequencies, that based on all books.txt in current directory')
     parser_hack.add_argument('cipher_read', help = 'read cipher from the file')
     parser_hack.set_defaults(func = hack)
 
