@@ -39,5 +39,7 @@ Three books were taken to calculate the frequency of characters: Fyodor Dostoyev
 
 *approximate_keys.json* appears in the directory. It contains all aproximate keys (10 by def)
 
+With each iteration, the key should become more accurate
+
 Symbols that have a frequency of 0 (not met in the cipher) in the key get a value of 999
 
