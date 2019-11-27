@@ -41,5 +41,5 @@ Three books were taken to calculate the frequency of characters: Fyodor Dostoyev
 
 With each iteration, the key should become more accurate
 
-Symbols that have a frequency of 0 (not met in the cipher) in the key get a value of 999
+Symbols that have a frequency of 0 (not met in the cipher) in the key get a value of '_'
 
